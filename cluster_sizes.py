@@ -21,12 +21,12 @@ from event_converter import *
 reload(event_converter)
 
 
-# In[4]:
+# In[2]:
 
 get_ipython().run_cell_magic(u'javascript', u'', u'IPython.OutputArea.auto_scroll_threshold = 9999;\n// this cell fixes the scroll boxes that are otherwise quite irritating')
 
 
-# In[5]:
+# In[3]:
 
 def cluster_positions_for_event(event, plot=False):
     positions = []
@@ -118,7 +118,7 @@ def mean_sizes_for_event(eta, phi):
     return sizes
 
 
-# In[6]:
+# In[4]:
 
 def hit_histogram(eta_from, eta_to):    
     bins = np.linspace(1,200,200)
@@ -189,7 +189,7 @@ def cons_hit_histogram(eta_from, eta_to):
     return (histogram_horizontal, histogram_vertical, num_hits, num_events)
 
 
-# In[7]:
+# In[5]:
 
 def plot_histograms(hor_hist, vert_hist, title, filename, x_lim=120, x_label='# Hits'):
     plt.figure(figsize=(14, 7))
@@ -207,7 +207,7 @@ def plot_histograms(hor_hist, vert_hist, title, filename, x_lim=120, x_label='# 
     
 
 
-# In[8]:
+# In[6]:
 
 def show_hit_historgram(eta1, eta2):
     h_horizontal, h_vertical, num_hits, num_events = hit_histogram(eta1, eta2)
@@ -218,7 +218,7 @@ def show_hit_historgram(eta1, eta2):
 #show_hit_historgram(14, 16)
 
 
-# In[9]:
+# In[7]:
 
 def show_cons_hit_histogram(eta1, eta2):
     h_horizontal, h_vertical, num_hits, num_events = cons_hit_histogram(eta1, eta2)
@@ -229,7 +229,7 @@ def show_cons_hit_histogram(eta1, eta2):
 #show_cons_hit_histogram(14, 16)
 
 
-# In[10]:
+# In[8]:
 
 def show_size_heatmap_per_eta(eta1, eta2):
     eta_sizes = {}
@@ -250,7 +250,7 @@ def show_size_heatmap_per_eta(eta1, eta2):
 #show_size_heatmap_per_eta(1, 30)
 
 
-# In[11]:
+# In[9]:
 
 from math import *
 
@@ -314,7 +314,7 @@ def show_length_heatmap_per_eta(eta1, eta2):
 # TODO: split based on ToT - low/high energy
 
 
-# In[13]:
+# In[10]:
 
 def show_scatter_sizes_per_event():
     plt.figure(figsize=(14, 16))
@@ -340,7 +340,7 @@ def show_scatter_sizes_per_event():
 #show_scatter_sizes_per_event()
 
 
-# In[14]:
+# In[11]:
 
 def show_scatter_sizes_per_module():
     plt.figure(figsize=(14, 16))
