@@ -310,8 +310,6 @@ def show_length_heatmap_per_eta(eta1, eta2):
     plt.savefig('cluster_length_eta.png')
 
 #show_length_heatmap_per_eta(1, 30)
-    
-# TODO: split based on ToT - low/high energy
 
 
 # In[10]:
