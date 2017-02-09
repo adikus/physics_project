@@ -1,7 +1,32 @@
 
 # coding: utf-8
 
+# # Cluster sizes
+# 
+# This notebook provide helper function for retrieving cluster positions from events/modules. Even though retrieving clusters from a single event is fast, it takes long to iterate over every module. Therefore I decided to cache the found cluster positions on disk (in `data/cluster_positions/`).
+# 
+# The most useful functions:
+# 
+#  * `cluster_positions(eta, phi)`: 
+#    Loads all cluster positions from the specified module (only the first layer, for now).
+#    Tries to load the positions from `data/cluster_positions/eta/phi.npy`. If it cannot find the file, 
+#    the positions are computed and then stored.
+#    
+#    **Returns: cluster_positions_by_event** : a dictionary with event IDs as keys and array of position tuples as values. The arrays are in the form `[(x1, y1, x2, y2)]` where x1, y1, x2 and y2 represent upper left and lower right coordinate of a cluster.
+#    
+#    
+#  * `cluster_positions_for_event(event, plot=False)`:
+#    Takes the 2D matrix containg ToT information as returned from `get_hit_image` (Similar to `get_hit_image` but returns only binary hit information).
+#  
+#    **Returns: cluster_positions** : array of position tuples for all clusters in the form [(x1, y1, x2, y2)]
+#    where x1, y1, x2 and y2 represent upper left and lower right coordinate of a cluster.
+#    You can pass `plot=True` to show the result of the clustering visally.
+#    
+# See example further down.
+
 # In[1]:
+
+## Imports
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,6 +39,9 @@ import time
 import os
 import pickle
 from matplotlib.colors import LogNorm
+from math import *
+
+## Convert `event_converter.ipynb` notebook to an ordinary python script, so that it can be imported here
 
 get_ipython().system(u'jupyter nbconvert --to script event_converter.ipynb')
 import event_converter
@@ -26,8 +54,11 @@ reload(event_converter)
 get_ipython().run_cell_magic(u'javascript', u'', u'IPython.OutputArea.auto_scroll_threshold = 9999;\n// this cell fixes the scroll boxes that are otherwise quite irritating')
 
 
-# In[3]:
+# In[12]:
 
+## Helper functions related to retrieving clusters
+
+# Take event and return an array of position tuples for all clusters in the form [(x1, y1, x2, y2)]
 def cluster_positions_for_event(event, plot=False):
     positions = []
     def process_cluster_xy(val, pos):
@@ -40,23 +71,20 @@ def cluster_positions_for_event(event, plot=False):
         positions.append((x1, y1, x2, y2))
         return 1
     
-    #timing_start()
     labeled_array, num_features = ndimage.label(event)
-    #print timing_end()
     labels = np.arange(1, num_features+1)
-    
-    #timing_start()
     ndimage.labeled_comprehension(event, labeled_array, labels, process_cluster_xy, int, 0, True)
-    #print timing_end()
     
     if plot:
-        #show_gray(event, 'Event')
         hits = np.array(np.where(event == 1))
         hits = np.rollaxis(hits, 1)
         plt.figure(figsize=(14, 7))
+        plt.ylim([0,336])
+        plt.xlim([0,804])
         plt.scatter(hits[:,1], hits[:,0], s=5, c=np.array(labeled_array[np.where(event == 1)])*100, edgecolors='face')
     return np.array(positions)
 
+# Take array of cluster position tuples and return an array of cluster size tuples
 def cluster_sizes(positions):
     return np.vstack([positions[:, 2] - positions[:, 0] + 1, positions[:, 3] - positions[:, 1] + 1]).T
 
@@ -101,6 +129,7 @@ def cluster_sizes_for_eta(eta):
     print
     return sizes
 
+# Return the mean size of clusters in a given module in both direction
 def mean_size_for_module(eta, phi):
     cl_positions = cluster_positions(eta, phi)
     sizes = np.zeros((0,2))
@@ -109,6 +138,7 @@ def mean_size_for_module(eta, phi):
         sizes = np.vstack([sizes, sz])
     return np.mean(sizes, axis=0)
 
+# Return the array of mean sizes of clusters for all events in a given module in both direction
 def mean_sizes_for_event(eta, phi):
     cl_positions = cluster_positions(eta, phi)
     sizes = np.zeros((0,2))
@@ -117,6 +147,31 @@ def mean_sizes_for_event(eta, phi):
         sizes = np.vstack([sizes, np.mean(sz, axis=0)])
     return sizes
 
+
+# ## Example
+
+# In[16]:
+
+def find_clusters_in_an_event(eta, phi, eventID):
+    hits = get_hits(eta, phi)
+    image = get_tot_image(hits, eventID)
+    binary_image = get_hit_image(hits, eventID)
+    show_gray(image, 'Single event ToT', origin='lower')
+    cluster_positions_for_event(binary_image, plot=True)
+
+# find_clusters_in_an_event(25, 10, 999)
+
+def load_clusters_in_an_event_using_cache(eta, phi, eventID):
+    cluster_positions_by_event = cluster_positions(eta, phi)
+    cluster_positions_for_event = cluster_positions_by_event[eventID]
+    print 'There are ' + str(len(cluster_positions_for_event)) + ' clusters in event ' + str(eventID) + ' in module ' + str(eta) + ', ' + str(phi)
+    
+# load_clusters_in_an_event_using_cache(25, 10, 999)
+
+
+# ## Hit histograms
+# 
+# Following code plots histograms for total number of hits in a column for one event as well as histograms for  cluster lengths
 
 # In[4]:
 
@@ -229,6 +284,10 @@ def show_cons_hit_histogram(eta1, eta2):
 #show_cons_hit_histogram(14, 16)
 
 
+# ## Size heatmap
+# 
+# Following code generates 2D histogram for each eta index, showing sizes of clusters in both directions.
+
 # In[8]:
 
 def show_size_heatmap_per_eta(eta1, eta2):
@@ -250,9 +309,13 @@ def show_size_heatmap_per_eta(eta1, eta2):
 #show_size_heatmap_per_eta(1, 30)
 
 
+# ## Cluster length vs eta heatmap
+# 
+# Generates 2D histogram, showing the relationship between eta and cluster length.
+
 # In[9]:
 
-from math import *
+# Helper functions for converting from eta to theta
 
 def module_pixel_to_eta(eta_i, pixel_i):
     height = 336
@@ -311,6 +374,10 @@ def show_length_heatmap_per_eta(eta1, eta2):
 
 #show_length_heatmap_per_eta(1, 30)
 
+
+# # Cluster size scatterplots
+# 
+# The first scatter plot contains a point for each event, while the second one contains a point for each module.
 
 # In[10]:
 
