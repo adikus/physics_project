@@ -13,7 +13,7 @@
 #    it loads the hits from the tree file and creates this file. This is done because loading 
 #    directly from the tree file is quite slow (not sure why, possibly because it 
 #    needs to convert from c-style array to python-style array). 
-#    Serializing and deserializing using `pickle` is much faster.
+#    Serializing and deserializing using `numpy` is much faster.
 #    
 #    **Returns: hits** : a 4 x N matrix, containg N hits and rows contain `pixelRow`, `pixelColumn`, `Event` and `pixelToT`
 #    

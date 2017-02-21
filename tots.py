@@ -22,7 +22,7 @@
 #    
 # See example further down.
 
-# In[2]:
+# In[1]:
 
 ## Imports
 
@@ -59,7 +59,7 @@ print 'Done.'
 get_ipython().run_cell_magic(u'javascript', u'', u'IPython.OutputArea.auto_scroll_threshold = 9999;\n// this cell fixes the scroll boxes that are otherwise quite irritating')
 
 
-# In[10]:
+# In[4]:
 
 ## Helper functions related to retrieving clusters
 
@@ -130,7 +130,7 @@ def show_line_prediction(shape, y0, y1):
 
 # ## Cluster size vs. cluster energy heatmap
 
-# In[28]:
+# In[5]:
 
 def cluster_size_vs_energy_heatmap():
     tot_size = []
@@ -332,7 +332,7 @@ def plot_shape_prediction_histogram(eta, kmeans):
 # 
 # Fit a line through the cluster and collect samples along this line. Use this for clustering.
 
-# In[139]:
+# In[6]:
 
 def cluster_cluster_line_profiles(eta):
     tot_lines = []
@@ -377,9 +377,9 @@ def cluster_cluster_line_profiles(eta):
         plt.title(title)
 
     plt.savefig('tot_eta_line_clustering_norm_'+str(eta)+'.png')
-    return kmeans
+    return line_kmeans
 
-# kmeans = cluster_cluster_line_profiles(1)
+#line_kmeans = cluster_cluster_line_profiles(15)
 
 
 # In[198]:
