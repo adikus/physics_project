@@ -54,7 +54,7 @@ reload(event_converter)
 get_ipython().run_cell_magic(u'javascript', u'', u'IPython.OutputArea.auto_scroll_threshold = 9999;\n// this cell fixes the scroll boxes that are otherwise quite irritating')
 
 
-# In[12]:
+# In[3]:
 
 ## Helper functions related to retrieving clusters
 
@@ -150,7 +150,7 @@ def mean_sizes_for_event(eta, phi):
 
 # ## Example
 
-# In[16]:
+# In[24]:
 
 def find_clusters_in_an_event(eta, phi, eventID):
     hits = get_hits(eta, phi)
@@ -167,6 +167,16 @@ def load_clusters_in_an_event_using_cache(eta, phi, eventID):
     print 'There are ' + str(len(cluster_positions_for_event)) + ' clusters in event ' + str(eventID) + ' in module ' + str(eta) + ', ' + str(phi)
     
 # load_clusters_in_an_event_using_cache(25, 10, 999)
+
+#hits = get_hits(1, 10)
+#image = get_hit_image(hits, 1)
+#show_gray(1-image[:, :400], 'Hits in low eta', origin='lower')
+#plt.savefig('example_hits_low_eta.png')
+
+#hits = get_hits(25, 10)
+#image = get_hit_image(hits, 3)
+#show_gray(1-image[:, :400], 'Hits in high eta', origin='lower')
+#plt.savefig('example_hits_high_eta.png')
 
 
 # ## Hit histograms
@@ -313,7 +323,7 @@ def show_size_heatmap_per_eta(eta1, eta2):
 # 
 # Generates 2D histogram, showing the relationship between eta and cluster length.
 
-# In[9]:
+# In[5]:
 
 # Helper functions for converting from eta to theta
 
@@ -346,7 +356,7 @@ def np_module_pixel_to_eta(eta_i, pixel_i):
     return etai + (etao - etai)*(pixel_i-1)/(height-1)
 
 
-# In[12]:
+# In[25]:
 
 def show_length_heatmap_per_eta(eta1, eta2):
     eta_lengths = []
@@ -357,13 +367,25 @@ def show_length_heatmap_per_eta(eta1, eta2):
 
     eta_lengths = np.vstack(eta_lengths)
 
-    plt.figure(figsize=(15, 12))
-    plt.title('Cluster size in z-direction vs eta module (with predictioon for 250x50 um pitch)')
+    #plt.figure(figsize=(15, 12))
+    
+    plt.figure(figsize=(20, 12))
+
+    font = {'family' : 'normal',
+            'weight' : 'normal',
+            'size'   : 22}
+
+    plt.rc('font', **font)
+    
+    #plt.title('Cluster size in z-direction vs eta module (with predictioon for 250x50 um pitch)')
+    plt.title('Cluster size in z-direction vs eta module')
     H, yedges, xedges = np.histogram2d(eta_lengths[:, 1], eta_lengths[:, 0], bins=(range(1, 121), range(1, 32)))
     norm = LogNorm(1, H.max())
     plt.imshow(np.clip(H, 1, H.max()), norm=norm, aspect=0.25, interpolation='nearest', origin='low', extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]])
     plt.colorbar()
     plt.axis('tight')
+    plt.ylabel('cluster length')
+    plt.xlabel('module eta index')
 
     eta_i = np.linspace(1, 30, 30)
     theta = np_module_pixel_to_theta(eta_i, 186)
